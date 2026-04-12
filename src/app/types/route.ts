@@ -2,11 +2,11 @@ export interface Route {
   id: number;
   tagSkill?: string[];
   capacity: number;
-  workingTimeStart: Date;
-  workingTimeEnd: Date;
-  breakTimeStart: Date;
-  breakTimeEnd: Date;
-  maxTask?: Date;
+  workingTimeStart: string;
+  workingTimeEnd: string;
+  breakTimeStart: string;
+  breakTimeEnd: string;
+  maxTask?: number;
   //   driver?: Driver;
 }
 

@@ -1,83 +1,134 @@
 "use client";
 
+import { AppDispatch, RootState } from "@/app/store";
+import { addRoute } from "@/app/store/slice/routeSlice";
 import { Route } from "@/app/types/route";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const WorkSpace = () => {
-  const [routes, setRoutes] = useState<Route[]>([]);
+  const [isHideRoutes, setIsHideRoutes] = useState(false);
   const [tagSkill, setTagSkill] = useState<string>("");
-  const [startDay, setStartDay] = useState<number>(1);
-  const [startMouth, setStartMouth] = useState<number>(1);
-  const [startYear, setStartYear] = useState<number>(2026);
-  const [endDay, setEndDay] = useState<number>(1);
-  const [endMouth, setEndMouth] = useState<number>(1);
-  const [endYear, setEndYear] = useState<number>(2026);
-  const [maxTask, setMaxTask] = useState<number>(0);
+  const [startHour, setStartHour] = useState<string>("");
+  const [capacity, setCapacity] = useState<string>("");
+  const [startminute, setStartMinute] = useState<string>("");
+  const [endHour, setEndHour] = useState<string>("");
+  const [endminute, setEndMinute] = useState<string>("");
+  const [maxTask, setMaxTask] = useState<string>("");
+  const routeSlice = useSelector((state: RootState) => state.route);
+  const dispatch = useDispatch<AppDispatch>();
+  const formatStringTime = (hour: string, minute: string): string => {
+    const hh = hour.padStart(2, "0");
+    const mm = minute.padStart(2, "0");
+
+    return `${hh}.${mm}`;
+  };
+  const handlerCreateRoute = () => {
+    const startTime = formatStringTime(startHour, startminute);
+    const endTime = formatStringTime(endHour, startminute);
+    const newRoute: Route = {
+      id: routeSlice.routes.length + 1,
+      tagSkill: [tagSkill],
+      capacity: Number(capacity),
+      workingTimeStart: startTime,
+      workingTimeEnd: endTime,
+      maxTask: Number(maxTask),
+      breakTimeStart: "12.00",
+      breakTimeEnd: "13.00",
+    };
+    dispatch(addRoute(newRoute));
+  };
   return (
     <div>
-      <label htmlFor="">TagSkill </label>
-      <select value={tagSkill} onChange={(e) => setTagSkill(e.target.value)}>
-        <option value="">-- Select color --</option>
-        <option value="red">Red</option>
-        <option value="yellow">Yellow</option>
-        <option value="green">Green</option>
-        <option value="blue">Blue</option>
-      </select>
+      <button onClick={() => setIsHideRoutes((prev) => !prev)}>
+        {isHideRoutes ? "show" : "hide"}
+      </button>
       <br />
       <br />
-      <label htmlFor="">Capacity </label>
-      <input type="number" placeholder="capacity" />
-      <br />
-      <br />
-      <label htmlFor="">Start </label>
-      <input
-        type="number"
-        value={startDay}
-        onChange={(e) => setStartDay(Number(e.target.value))}
-        placeholder="day"
-      />
-      <input
-        type="number"
-        placeholder="mouth"
-        value={startMouth}
-        onChange={(e) => setStartMouth(Number(e.target.value))}
-      />
-      <input
-        type="number"
-        placeholder="year"
-        value={startYear}
-        onChange={(e) => setStartYear(Number(e.target.value))}
-      />
-      <br />
-      <br />
-      <label htmlFor="">End </label>
-      <input
-        type="number"
-        value={endDay}
-        onChange={(e) => setEndDay(Number(e.target.value))}
-        placeholder="day"
-      />
-      <input
-        type="number"
-        placeholder="mouth"
-        value={endMouth}
-        onChange={(e) => setEndMouth(Number(e.target.value))}
-      />
-      <input
-        type="number"
-        placeholder="year"
-        value={endYear}
-        onChange={(e) => setEndYear(Number(e.target.value))}
-      />
-      <br />
-      <br />
-      <label htmlFor="">maxtask</label>
-      <br />
-      <input
-        value={maxTask}
-        onChange={(e) => setMaxTask(Number(e.target.value))}
-        type="number"
-      />
+      {!isHideRoutes && (
+        <section>
+          <div>
+            {routeSlice?.routes.map((r, index) => (
+              <div key={index}>
+                <p>dirver id:{r.id}</p>
+                <p>
+                  breakTime {r.breakTimeStart} to {r.breakTimeEnd}
+                </p>
+                <p>
+                  workTime {r.workingTimeStart} to {r.workingTimeEnd}
+                </p>
+                <p>capacity {r.capacity}</p>
+                <p>max task {r.maxTask}</p>
+                <div>================</div>
+                <br />
+              </div>
+            ))}
+          </div>
+          <label htmlFor="">TagSkill </label>
+          <select
+            value={tagSkill}
+            onChange={(e) => setTagSkill(e.target.value)}
+          >
+            <option value="">-- Select color --</option>
+            <option value="red">Red</option>
+            <option value="yellow">Yellow</option>
+            <option value="green">Green</option>
+            <option value="blue">Blue</option>
+          </select>
+          <br />
+          <br />
+          <label htmlFor="">Capacity </label>
+          <input
+            type="text"
+            placeholder="capacity"
+            value={capacity}
+            onChange={(e) => setCapacity(e.target.value)}
+          />
+          <br />
+          <br />
+          <label htmlFor="">Start </label>
+          <input
+            type="text"
+            value={startHour}
+            onChange={(e) => setStartHour(e.target.value)}
+            placeholder="day"
+          />
+          <input
+            type="text"
+            placeholder="minute"
+            value={startminute}
+            onChange={(e) => setStartMinute(e.target.value)}
+          />
+          <br />
+          <br />
+          <label htmlFor="">End </label>
+          <input
+            type="text"
+            value={endHour}
+            onChange={(e) => setEndHour(e.target.value)}
+            placeholder="hour"
+          />
+          <input
+            type="text"
+            placeholder="minute"
+            value={endminute}
+            onChange={(e) => setEndMinute(e.target.value)}
+          />
+
+          <br />
+          <br />
+          <label htmlFor="">maxtask </label>
+          <input
+            value={maxTask}
+            onChange={(e) => setMaxTask(e.target.value)}
+            type="text"
+          />
+          <br />
+          <button type="button" onClick={() => handlerCreateRoute()}>
+            create
+          </button>
+        </section>
+      )}
     </div>
   );
 };
