@@ -1,21 +1,29 @@
 "use client";
 
 import { AppDispatch, RootState } from "@/app/store";
-import { addRoute } from "@/app/store/slice/routeSlice";
+import {
+  addRoute,
+  deleteRoute,
+  patchRoute,
+} from "@/app/store/slice/routeSlice";
 import { Route } from "@/app/types/route";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const WorkSpace = () => {
-  const [isHideRoutes, setIsHideRoutes] = useState(false);
+  const [routeEditID, setRouteEditID] = useState(-1);
+  const [isHideRoutes, setIsHideRoutes] = useState(true);
   const [tagSkill, setTagSkill] = useState<string>("");
   const [startHour, setStartHour] = useState<string>("");
   const [capacity, setCapacity] = useState<string>("");
   const [startminute, setStartMinute] = useState<string>("");
   const [endHour, setEndHour] = useState<string>("");
-  const [endminute, setEndMinute] = useState<string>("");
+  const [endMinute, setEndMinute] = useState<string>("");
   const [maxTask, setMaxTask] = useState<string>("");
   const routeSlice = useSelector((state: RootState) => state.route);
+  const [startTimeOrder, setStartTimeOder] = useState<string>("1");
+  const [endTimeOrder, setEndTimeOrder] = useState<string>("");
+  const [isEditRoute, setIsEditRoute] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
   const formatStringTime = (hour: string, minute: string): string => {
     const hh = hour.padStart(2, "0");
@@ -25,9 +33,13 @@ const WorkSpace = () => {
   };
   const handlerCreateRoute = () => {
     const startTime = formatStringTime(startHour, startminute);
-    const endTime = formatStringTime(endHour, startminute);
+    const endTime = formatStringTime(endHour, endMinute);
     const newRoute: Route = {
-      id: routeSlice.routes.length + 1,
+      id: isEditRoute
+        ? routeEditID
+        : routeSlice.routes[0]
+          ? routeSlice.routes[routeSlice.routes.length - 1].id + 1
+          : 0,
       tagSkill: [tagSkill],
       capacity: Number(capacity),
       workingTimeStart: startTime,
@@ -36,21 +48,43 @@ const WorkSpace = () => {
       breakTimeStart: "12.00",
       breakTimeEnd: "13.00",
     };
-    dispatch(addRoute(newRoute));
+    if (isEditRoute) {
+      dispatch(patchRoute(newRoute));
+      setIsEditRoute(false);
+      setRouteEditID(-1);
+    } else {
+      dispatch(addRoute(newRoute));
+    }
+  };
+  const initializeRouteEdit = (route: Route) => {
+    setIsEditRoute(true);
+    setRouteEditID(route.id);
+    setStartHour(route.workingTimeStart.substring(0, 2));
+    setStartMinute(route.workingTimeStart.substring(3, 5));
+    setEndHour(route.workingTimeEnd.substring(0, 2));
+    setEndMinute(route.workingTimeEnd.substring(3, 5));
+    setCapacity(String(route.capacity));
+    setTagSkill(route.tagSkill?.[0] ?? "");
+    setMaxTask(String(route.maxTask));
   };
   return (
     <div>
       <button onClick={() => setIsHideRoutes((prev) => !prev)}>
-        {isHideRoutes ? "show" : "hide"}
+        {isHideRoutes ? "show routes" : "hide routes"}
       </button>
-      <br />
+
       <br />
       {!isHideRoutes && (
         <section>
           <div>
             {routeSlice?.routes.map((r, index) => (
               <div key={index}>
-                <p>dirver id:{r.id}</p>
+                <span>
+                  <p>dirver id:{r.id}</p>
+                  <button type="button" onClick={() => initializeRouteEdit(r)}>
+                    Edit
+                  </button>
+                </span>
                 <p>
                   breakTime {r.breakTimeStart} to {r.breakTimeEnd}
                 </p>
@@ -59,6 +93,12 @@ const WorkSpace = () => {
                 </p>
                 <p>capacity {r.capacity}</p>
                 <p>max task {r.maxTask}</p>
+                <button
+                  type="button"
+                  onClick={() => dispatch(deleteRoute(r.id))}
+                >
+                  Delete
+                </button>
                 <div>================</div>
                 <br />
               </div>
@@ -111,7 +151,7 @@ const WorkSpace = () => {
           <input
             type="text"
             placeholder="minute"
-            value={endminute}
+            value={endMinute}
             onChange={(e) => setEndMinute(e.target.value)}
           />
 
@@ -125,10 +165,23 @@ const WorkSpace = () => {
           />
           <br />
           <button type="button" onClick={() => handlerCreateRoute()}>
-            create
+            {isEditRoute ? `Edit ID ${routeEditID}` : "Create"}
           </button>
         </section>
       )}
+      <br />
+      <section>
+        <div>
+          <label htmlFor=""></label>
+          <select onChange={(e) => setStartTimeOder(e.target.value)}>
+            {Array.from({ length: 24 }, (_, index) => (
+              <option key={index} value={index + 1}>
+                {index + 1}
+              </option>
+            ))}
+          </select>
+        </div>
+      </section>
     </div>
   );
 };

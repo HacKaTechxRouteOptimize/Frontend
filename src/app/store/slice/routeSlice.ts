@@ -3,13 +3,9 @@ import { Route } from "@/app/types/route";
 
 export interface RouteState {
   routes: Route[];
-  status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
 }
 const initialState: RouteState = {
   routes: [],
-  status: "idle",
-  error: null,
 };
 
 export const routeSlice = createSlice({
@@ -19,8 +15,19 @@ export const routeSlice = createSlice({
     addRoute: (state, action: PayloadAction<Route>) => {
       state.routes.push(action.payload);
     },
+    deleteRoute: (state, action: PayloadAction<number>) => {
+      state.routes = state.routes.filter((r) => r.id != action.payload);
+    },
+    patchRoute: (state, action: PayloadAction<Route>) => {
+      const prevIndex = state.routes.findIndex(
+        (r) => r.id == action.payload.id,
+      );
+      if (prevIndex != -1) {
+        state.routes[prevIndex] = action.payload;
+      }
+    },
   },
 });
 
-export const { addRoute } = routeSlice.actions;
+export const { addRoute, deleteRoute, patchRoute } = routeSlice.actions;
 export default routeSlice.reducer;
