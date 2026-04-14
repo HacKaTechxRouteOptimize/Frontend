@@ -1,5 +1,9 @@
 import { AppDispatch, RootState } from "@/app/store";
-import { addOrder } from "@/app/store/slice/orderSlice";
+import {
+  addOrder,
+  deleteOrder,
+  patchOrder,
+} from "@/app/store/slice/orderSlice";
 import { Order } from "@/app/types/order";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,10 +18,26 @@ const OrderManager = () => {
   const [capacity, setCapacity] = useState("");
   const [tagSkill, setTagSkill] = useState([""]);
   const orderSlice = useSelector((state: RootState) => state.order);
+  const [currentPatchID, setCurrentPatchID] = useState(-1);
   const dispatch = useDispatch<AppDispatch>();
+  const initializePatchOrder = (order: Order) => {
+    setCurrentPatchID(order.id);
+    setStartTimeWindow(order.startTimeWindow);
+    setEndTimeWindow(order.endTimeWindow);
+    setCapacity(String(order.capacity));
+    setTagSkill(order.tagSkill ?? [""]);
+    setPriority(order.priority);
+    setType(order.type);
+  };
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const orderID = orderSlice.order[orderSlice.order.length - 1]?.id ?? 0;
+
+    const orderID =
+      currentPatchID !== -1
+        ? currentPatchID
+        : orderSlice.order[orderSlice.order.length - 1]?.id
+          ? orderSlice.order[orderSlice.order.length - 1]?.id + 1
+          : 1;
     const newOrder: Order = {
       id: orderID,
       startTimeWindow,
@@ -27,7 +47,12 @@ const OrderManager = () => {
       type,
       priority,
     };
-    dispatch(addOrder(newOrder));
+    if (currentPatchID === -1) {
+      dispatch(addOrder(newOrder));
+    } else {
+      dispatch(patchOrder(newOrder));
+      setCurrentPatchID(-1);
+    }
   };
 
   return (
@@ -45,6 +70,15 @@ const OrderManager = () => {
             </div>
             <p>{o.priority}</p>
             <p>{o.type}</p>
+            <p>Capacity:{o.capacity}</p>
+            <span>
+              <button type="button" onClick={() => initializePatchOrder(o)}>
+                Edit
+              </button>
+              <button onClick={() => dispatch(deleteOrder(o.id))} type="button">
+                Delete
+              </button>
+            </span>
             <div>==========</div>
           </div>
         ))}
@@ -160,7 +194,9 @@ const OrderManager = () => {
         />
         <br />
         <br />
-        <button type="submit">Create</button>
+        <button type="submit">
+          {currentPatchID === -1 ? "Create" : `Patch ID ${currentPatchID}`}
+        </button>
       </form>
     </div>
   );

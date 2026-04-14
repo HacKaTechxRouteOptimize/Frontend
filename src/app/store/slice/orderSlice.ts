@@ -15,8 +15,19 @@ const orderSlice = createSlice({
     addOrder: (state, action: PayloadAction<Order>) => {
       state.order.push(action.payload);
     },
+    deleteOrder: (state, action: PayloadAction<number>) => {
+      state.order = state.order.filter((o) => o.id != action.payload);
+    },
+    patchOrder: (state, action: PayloadAction<Order>) => {
+      const newOrderIndex = state.order.findIndex(
+        (o) => o.id === action.payload.id,
+      );
+      if (newOrderIndex !== -1) {
+        state.order[newOrderIndex] = action.payload;
+      }
+    },
   },
 });
 
-export const { addOrder } = orderSlice.actions;
+export const { addOrder, deleteOrder, patchOrder } = orderSlice.actions;
 export default orderSlice.reducer;
