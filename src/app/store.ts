@@ -3,17 +3,18 @@ import { baseApi } from "./api/baseApi";
 import routeReducer from "./store/slice/routeSlice";
 import { PersistConfig, persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-
+import orderReducer from "./store/slice/orderSlice";
 type RootReducerType = ReturnType<typeof rootReducer>;
 const persisConfig: PersistConfig<RootReducerType> = {
   key: "root",
   storage,
-  whitelist: ["route"],
+  whitelist: ["route", "order"],
 };
 
 const rootReducer = combineReducers({
   [baseApi.reducerPath]: baseApi.reducer,
   route: routeReducer,
+  order: orderReducer,
 });
 
 const persistedReducer = persistReducer(persisConfig, rootReducer);

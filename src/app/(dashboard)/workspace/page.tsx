@@ -9,7 +9,7 @@ import {
 import { Route } from "@/app/types/route";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
+import OrderManager from "./component/OrderManager";
 const WorkSpace = () => {
   const [routeEditID, setRouteEditID] = useState(-1);
   const [isHideRoutes, setIsHideRoutes] = useState(true);
@@ -21,8 +21,6 @@ const WorkSpace = () => {
   const [endMinute, setEndMinute] = useState<string>("");
   const [maxTask, setMaxTask] = useState<string>("");
   const routeSlice = useSelector((state: RootState) => state.route);
-  const [startTimeOrder, setStartTimeOder] = useState<string>("1");
-  const [endTimeOrder, setEndTimeOrder] = useState<string>("");
   const [isEditRoute, setIsEditRoute] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
   const formatStringTime = (hour: string, minute: string): string => {
@@ -171,16 +169,7 @@ const WorkSpace = () => {
       )}
       <br />
       <section>
-        <div>
-          <label htmlFor=""></label>
-          <select onChange={(e) => setStartTimeOder(e.target.value)}>
-            {Array.from({ length: 24 }, (_, index) => (
-              <option key={index} value={index + 1}>
-                {index + 1}
-              </option>
-            ))}
-          </select>
-        </div>
+        <OrderManager></OrderManager>
       </section>
     </div>
   );
