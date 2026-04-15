@@ -5,7 +5,7 @@ import {
   addRoute,
   deleteRoute,
   patchRoute,
-} from "@/app/store/slice/routeSlice";
+} from "@/app/features/route/routeSlice";
 import { Route } from "@/app/types/route";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";

@@ -3,7 +3,7 @@ import {
   addOrder,
   deleteOrder,
   patchOrder,
-} from "@/app/store/slice/orderSlice";
+} from "@/app/features/order/orderSlice";
 import { Order } from "@/app/types/order";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
