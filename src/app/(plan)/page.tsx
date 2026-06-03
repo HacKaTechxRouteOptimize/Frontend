@@ -248,6 +248,7 @@ const Preview = () => {
   const [colDataOrder, setColDataOrder] = useState<string[][]>([]);
   const [isOptimize, setIsOptimize] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [locationError, setLocationError] = useState("");
   const getFileCondition = (): string => {
     if (vehicleBases.length === 0 && orderBases.length === 0) {
       return "ยังไม่ได้อัปโหลดไฟล์ กรุณาอัปโหลดข้อมูลรถและออเดอร์ให้ครบถ้วน";
@@ -310,6 +311,49 @@ const Preview = () => {
         return 0;
     }
     return 1;
+  };
+
+  const handleUseCurrentLocation = () => {
+    setLocationError("");
+
+    if (!navigator.geolocation) {
+      setLocationError("*เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setDepotLoc({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+
+        setLocationError("");
+      },
+      (error) => {
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            setLocationError("*กรุณาอนุญาตการเข้าถึงตำแหน่ง");
+            break;
+
+          case error.POSITION_UNAVAILABLE:
+            setLocationError("*ไม่สามารถระบุตำแหน่งได้");
+            break;
+
+          case error.TIMEOUT:
+            setLocationError("*หมดเวลาการค้นหาตำแหน่ง");
+            break;
+
+          default:
+            setLocationError("*เกิดข้อผิดพลาด");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      },
+    );
   };
 
   const handleCreateVeiclePayload = () => {
@@ -635,6 +679,22 @@ const Preview = () => {
                 onChange={setDepotLoc}
               ></LocationInput>
             </div>
+            <div className={styles.currentLocation}>
+              <Image
+                src="/icon/locaton-point.svg"
+                alt="location point"
+                width={18}
+                height={18}
+              />
+
+              <button type="button" onClick={handleUseCurrentLocation}>
+                ใช้ตำแหน่งปัจจุบัน
+              </button>
+            </div>
+
+            {locationError && (
+              <p className={styles.locationError}>{locationError}</p>
+            )}
             <section className={styles.uploadContainer}>
               <div
                 style={{

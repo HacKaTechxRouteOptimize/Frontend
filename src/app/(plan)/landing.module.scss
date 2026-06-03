@@ -256,3 +256,18 @@
     }
   }
 }
+
+.currentLocation {
+  display: inline-flex;;
+  align-items: center;
+  gap: 0.5rem;
+  border: 0.0625rem solid var(--p-200);
+  border-radius: 0.25rem;
+  padding: 0.375rem 0.75rem;
+}
+
+.locationError {
+  margin-top: 0.5rem;
+  color: rgb(255, 44, 44);
+  font-size: 0.875rem;
+}
