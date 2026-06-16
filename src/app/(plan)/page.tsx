@@ -235,9 +235,11 @@ const Preview = () => {
   const [optimizeCount, setOptimizeCount] = useState<{
     distance: number;
     vehicle: number;
+    deliveredOrders: number;
   }>({
     distance: 0,
     vehicle: 0,
+    deliveredOrders: 0,
   });
   const [createOptimize, { isLoading }] = useCreateOptimizeMutation();
   const [optimizeResult, setOptimizeResult] = useState<string[][]>([]);
@@ -265,7 +267,13 @@ const Preview = () => {
       const vehicleCount = routes.length;
       const distanceCount = routes.reduce((sum, v) => sum + v.totalDistance, 0);
 
-      setOptimizeCount({ vehicle: vehicleCount, distance: distanceCount });
+      const deliveredCount = routes.reduce((sum, r) => sum + (r.stops?.filter((s: any) => s.orderName).length || 0), 0, );
+
+      setOptimizeCount({
+        vehicle: vehicleCount,
+        distance: distanceCount,
+        deliveredOrders: deliveredCount,
+      });
       setOptimizeResult(
         routes.flatMap((r) =>
           r.stops.map((s: any) => {
@@ -710,7 +718,25 @@ Developed by **Computer Engineering students at Khon Kaen University**.
                   </div>
                 )}
               </div>
+
+              <div className={styles.optimizeBox}>
+                <h2 className={styles.optimizeType}>จำนวนของที่ส่ง</h2>
+                {loadingCount > 0 ? (
+                  <Skeleton
+                    borderRadius="4rem"
+                    width="10rem"
+                    height="3rem"
+                  ></Skeleton>
+                ) : (
+                  <div className={styles.optimizeInfo}>
+                    <h1 className={styles.optimizeVariable}>
+                      {optimizeCount.deliveredOrders} / {orderBases.length}
+                    </h1>
+                  </div>
+                )}
+              </div>
             </div>
+
             <div className={styles.optimizeFooter}>
               <button
                 type="button"
